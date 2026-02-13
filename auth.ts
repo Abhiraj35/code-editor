@@ -5,6 +5,12 @@ import authConfig from "./auth.config"
 import { getUserById } from "./modules/auth/actions";
 import { UserRole } from "@prisma/client";
 
+// Validate required environment variables
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
+if (!NEXTAUTH_SECRET) {
+    throw new Error("Missing NEXTAUTH_SECRET in environment variables");
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks: {
         async signIn({ user, account }) {
@@ -32,7 +38,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         email: user.email,
                         name: user.name ?? null,
                         image: user.image ?? null,
-                        accounts: { create: accountData },
                     },
                     update: {
                         name: user.name ?? undefined,
@@ -64,6 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 return true;
             } catch (error) {
+                //TODO: make error handeling batter and show users the error
                 const isUniqueViolation =
                     error && typeof error === "object" && "code" in error &&
                     (error as { code?: string }).code === "P2002";
@@ -99,7 +105,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return session;
         },
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: NEXTAUTH_SECRET,
     adapter: PrismaAdapter(db),
     session: { strategy: "jwt" },
     ...authConfig

@@ -23,8 +23,7 @@ const UserButton = () => {
       <DropdownMenuTrigger>
         <div className={cn("relative rounded-full")}>
           <Avatar>
-            <AvatarImage src={user?.image!} alt={user?.name!} />
-            <AvatarFallback className="bg-red-500">
+          <AvatarImage src={user?.image ?? ""} alt={user?.name ?? "User"} />            <AvatarFallback className="bg-red-500">
               <User className="text-white" />
             </AvatarFallback>
           </Avatar>
@@ -38,12 +37,12 @@ const UserButton = () => {
         </span>
       </DropdownMenuItem>
       <DropdownMenuSeparator/>
-        <LogoutButton>
-            <DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <LogoutButton>
                 <LogOut className="h-4 w-4 mr-2"/>
                 LogOut
-            </DropdownMenuItem>
-        </LogoutButton>
+            </LogoutButton>
+          </DropdownMenuItem>
     </DropdownMenuContent>
 
     </DropdownMenu>
