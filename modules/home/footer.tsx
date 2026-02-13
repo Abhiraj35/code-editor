@@ -8,6 +8,7 @@ export function Footer() {
   const socialLinks = [
     {
       href: "#",
+      label: "Github",
       icon: (
         <LucideGithub className="w-5 h-5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" />
       ),
@@ -25,6 +26,8 @@ export function Footer() {
               href={link.href || "#"}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={link.label}
+              title={link.label}
             >
               {link.icon}
             </Link>
