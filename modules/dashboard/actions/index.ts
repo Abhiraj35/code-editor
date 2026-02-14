@@ -5,10 +5,15 @@ import { db } from "@/lib/db";
 export const getAllPlaygroundForUser = async () => {
   const user = await currentUser();
 
+  //before making db call make sure user is unauthenticated
+  if(!user?.id){
+    return [];
+  }
+
   try {
     const playground = await db.playground.findMany({
       where: {
-        userId: user?.id,
+        userId: user.id,
       },
       include: {
         user: true,
