@@ -1,8 +1,8 @@
 export interface User {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
-  image: string;
+  image: string | null;
   role: string;
   createdAt: Date;
   updatedAt: Date;
@@ -11,11 +11,17 @@ export interface User {
 export interface Project {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   template: string;
   createdAt: Date;
   updatedAt: Date;
   userId: string;
   user: User;
   Starmark: { isMarked: boolean }[];
+}
+
+export interface Data {
+  title: string;
+  template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
+  description?: string;
 }

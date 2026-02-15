@@ -53,17 +53,16 @@ import {
   Eye,
 } from "lucide-react";
 import { toast } from "sonner";
-// import { MarkedToggleButton } from "./marked-toggle";
+import { MarkedToggleButton } from "./marked-toggle";
 
 interface ProjectTableProps {
   projects: Project[];
   onUpdateProject?: (
     id: string,
     data: { title: string; description: string }
-  ) => Promise<void>;
-  onDeleteProject?: (id: string) => Promise<void>;
-  onDuplicateProject?: (id: string) => Promise<void>;
-  
+  ) => Promise<{ success?: boolean; error?: string } | void>;
+  onDeleteProject?: (id: string) => Promise<{ success?: boolean; error?: string } | void>;
+  onDuplicateProject?: (id: string) => Promise<{ error?: string } | unknown>;
 }
 
 interface EditProjectData {
@@ -76,7 +75,6 @@ export default function ProjectTable({
   onUpdateProject,
   onDeleteProject,
   onDuplicateProject,
-
 }: ProjectTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -86,13 +84,13 @@ export default function ProjectTable({
     description: "",
   });
   const [isLoading, setIsLoading] = useState(false);
- 
+
 
   const handleEditClick = (project: Project) => {
     setSelectedProject(project);
     setEditData({
       title: project.title,
-      description: project.description || "",
+      description: project.description ?? "",
     });
     setEditDialogOpen(true);
   };
@@ -109,7 +107,11 @@ export default function ProjectTable({
     setIsLoading(true);
 
     try {
-      await onUpdateProject(selectedProject.id, editData);
+      const result = await onUpdateProject(selectedProject.id, editData);
+      if (result && "error" in result) {
+        toast.error("Failed to update project");
+        return;
+      }
       setEditDialogOpen(false);
       toast.success("Project updated successfully");
     } catch (error) {
@@ -129,7 +131,11 @@ export default function ProjectTable({
 
     setIsLoading(true);
     try {
-      await onDeleteProject(selectedProject.id);
+      const result = await onDeleteProject(selectedProject.id);
+      if (result && "error" in result) {
+        toast.error("Failed to delete project");
+        return;
+      }
       setDeleteDialogOpen(false);
       setSelectedProject(null);
       toast.success("Project deleted successfully");
@@ -146,7 +152,11 @@ export default function ProjectTable({
 
     setIsLoading(true);
     try {
-      await onDuplicateProject(project.id);
+      const result = await onDuplicateProject(project.id);
+      if (result && typeof result === "object" && "error" in result) {
+        toast.error("Failed to duplicate project");
+        return;
+      }
       toast.success("Project duplicated successfully");
     } catch (error) {
       toast.error("Failed to duplicate project");
@@ -183,16 +193,16 @@ export default function ProjectTable({
           <TableBody>
             {projects.map((project) => (
               <TableRow key={project.id}>
-                <TableCell className="font-medium">
-                  <div className="flex flex-col">
+                <TableCell className="font-medium min-w-0 whitespace-normal">
+                  <div className="flex flex-col min-w-0">
                     <Link
                       href={`/playground/${project.id}`}
-                      className="hover:underline"
+                      className="hover:underline truncate"
                     >
                       <span className="font-semibold">{project.title}</span>
                     </Link>
-                    <span className="text-sm text-gray-500 line-clamp-1">
-                      {project.description}
+                    <span className="text-sm text-gray-500 line-clamp-2 sm:line-clamp-1 break-words">
+                      {project.description ?? ""}
                     </span>
                   </div>
                 </TableCell>
@@ -213,14 +223,14 @@ export default function ProjectTable({
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full overflow-hidden">
                       <Image
-                        src={project.user.image || "/placeholder.svg"}
-                        alt={project.user.name}
+                        src={project.user.image ?? "/placeholder.svg"}
+                        alt={project.user.name ?? "User"}
                         width={32}
                         height={32}
                         className="object-cover"
                       />
                     </div>
-                    <span className="text-sm">{project.user.name}</span>
+                    <span className="text-sm">{project.user.name ?? "Unknown"}</span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -233,7 +243,7 @@ export default function ProjectTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem asChild>
-                        {/* <MarkedToggleButton markedForRevision={project.Starmark[0]?.isMarked} id={project.id} /> */}
+                        <MarkedToggleButton markedForRevision={project.Starmark?.[0]?.isMarked ?? false} id={project.id} />
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link

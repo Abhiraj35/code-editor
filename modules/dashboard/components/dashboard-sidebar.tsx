@@ -33,7 +33,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarRail,
+    SidebarTrigger,
 } from "@/components/ui/sidebar"
 import Image from "next/image"
 
@@ -65,10 +65,10 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
     return (
         <Sidebar variant="inset" collapsible="icon" className="border border-r">
             <SidebarHeader>
-                <div className="flex items-center gap-2 px-4 py-3 justify-center">
-                    <Image src={"/logo.svg"} alt="logo" height={60} width={60} />
+                <div className="flex items-center gap-2 px-2 py-3 justify-between group-data-[collapsible=icon]:justify-center">
+                    <Image src={"/logo.svg"} alt="logo" height={60} width={60} className="group-data-[collapsible=icon]:hidden" />
+                    <SidebarTrigger />
                 </div>
-
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
@@ -181,7 +181,6 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
-            <SidebarRail />
         </Sidebar>
     )
 }
