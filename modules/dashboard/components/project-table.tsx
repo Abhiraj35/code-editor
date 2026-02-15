@@ -53,7 +53,7 @@ import {
   Eye,
 } from "lucide-react";
 import { toast } from "sonner";
-// import { MarkedToggleButton } from "./marked-toggle";
+import { MarkedToggleButton } from "./marked-toggle";
 
 interface ProjectTableProps {
   projects: Project[];
@@ -76,7 +76,6 @@ export default function ProjectTable({
   onUpdateProject,
   onDeleteProject,
   onDuplicateProject,
-
 }: ProjectTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -86,7 +85,7 @@ export default function ProjectTable({
     description: "",
   });
   const [isLoading, setIsLoading] = useState(false);
- 
+
 
   const handleEditClick = (project: Project) => {
     setSelectedProject(project);
@@ -233,7 +232,7 @@ export default function ProjectTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem asChild>
-                        {/* <MarkedToggleButton markedForRevision={project.Starmark[0]?.isMarked} id={project.id} /> */}
+                        <MarkedToggleButton markedForRevision={project.Starmark[0]?.isMarked} id={project.id} />
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link
