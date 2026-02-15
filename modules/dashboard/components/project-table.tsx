@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import type { Project } from "../types";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -41,6 +41,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -49,11 +50,14 @@ import {
   Trash2,
   ExternalLink,
   Copy,
-  Download,
+  Link2,
   Eye,
+  Calendar,
+  FolderOpen,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkedToggleButton } from "./marked-toggle";
+import { cn } from "@/lib/utils";
 
 interface ProjectTableProps {
   projects: Project[];
@@ -85,7 +89,6 @@ export default function ProjectTable({
   });
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleEditClick = (project: Project) => {
     setSelectedProject(project);
     setEditData({
@@ -97,7 +100,6 @@ export default function ProjectTable({
 
   const handleDeleteClick = async (project: Project) => {
     setSelectedProject(project);
-
     setDeleteDialogOpen(true);
   };
 
@@ -120,10 +122,6 @@ export default function ProjectTable({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleMarkasFavorite = async (project: Project) => {
-    //    Write your logic here
   };
 
   const handleDeleteProject = async () => {
@@ -168,10 +166,10 @@ export default function ProjectTable({
 
   const copyProjectUrl = (projectId: string) => {
     const url = `${window.location.origin}/playground/${projectId}`;
-    
+
     try {
       navigator.clipboard.writeText(url);
-      toast.success("Project url copied to clipboard");
+      toast.success("Project URL copied to clipboard");
     } catch (error) {
       toast.error("Failed to copy URL to clipboard");
     }
@@ -179,49 +177,60 @@ export default function ProjectTable({
 
   return (
     <>
-      <div className="border rounded-lg overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block rounded-xl border border-border bg-card overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Project</TableHead>
-              <TableHead>Template</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>User</TableHead>
-              <TableHead className="w-[50px]">Actions</TableHead>
+            <TableRow className="bg-muted/50 hover:bg-muted/50 border-b border-border">
+              <TableHead className="font-semibold text-foreground">Project</TableHead>
+              <TableHead className="font-semibold text-foreground">Template</TableHead>
+              <TableHead className="font-semibold text-foreground">Created</TableHead>
+              <TableHead className="font-semibold text-foreground">User</TableHead>
+              <TableHead className="w-[50px] text-right font-semibold text-foreground">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {projects.map((project) => (
-              <TableRow key={project.id}>
-                <TableCell className="font-medium min-w-0 whitespace-normal">
-                  <div className="flex flex-col min-w-0">
+            {projects.map((project, index) => (
+              <TableRow
+                key={project.id}
+                className={cn(
+                  "group transition-colors hover:bg-muted/50",
+                  index !== projects.length - 1 && "border-b border-border/50"
+                )}
+              >
+                <TableCell className="font-medium">
+                  <div className="flex flex-col gap-1 py-1">
                     <Link
                       href={`/playground/${project.id}`}
-                      className="hover:underline truncate"
+                      className="font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-2 group/link"
                     >
-                      <span className="font-semibold">{project.title}</span>
+                      <FolderOpen className="h-4 w-4 text-muted-foreground group-hover/link:text-primary transition-colors" />
+                      <span className="line-clamp-1">{project.title}</span>
                     </Link>
-                    <span className="text-sm text-gray-500 line-clamp-2 sm:line-clamp-1 wrap-break-word">
-                      {project.description ?? ""}
-                    </span>
+                    {project.description && (
+                      <span className="text-sm text-muted-foreground line-clamp-1 pl-6">
+                        {project.description}
+                      </span>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge
                     variant="outline"
-                    className="bg-[#E93F3F15] text-[#E93F3F] border-[#E93F3F]"
+                    className="bg-primary/10 text-primary border-primary/20 font-medium"
                   >
                     {project.template}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm text-gray-500">
-                    {format(new Date(project.createdAt), "MMM dd, yyyy")}
-                  </span>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>{format(new Date(project.createdAt), "MMM dd, yyyy")}</span>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full overflow-hidden">
+                    <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-background shadow-sm">
                       <Image
                         src={project.user.image ?? "/placeholder.svg"}
                         alt={project.user.name ?? "User"}
@@ -230,25 +239,29 @@ export default function ProjectTable({
                         className="object-cover"
                       />
                     </div>
-                    <span className="text-sm">{project.user.name ?? "Unknown"}</span>
+                    <span className="text-sm font-medium">{project.user.name ?? "Unknown"}</span>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                         <span className="sr-only">Open menu</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="end" className="w-52">
                       <DropdownMenuItem asChild>
                         <MarkedToggleButton markedForRevision={project.Starmark?.[0]?.isMarked ?? false} id={project.id} />
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link
                           href={`/playground/${project.id}`}
-                          className="flex items-center"
+                          className="flex items-center cursor-pointer"
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           Open Project
@@ -258,7 +271,7 @@ export default function ProjectTable({
                         <Link
                           href={`/playground/${project.id}`}
                           target="_blank"
-                          className="flex items-center"
+                          className="flex items-center cursor-pointer"
                         >
                           <ExternalLink className="h-4 w-4 mr-2" />
                           Open in New Tab
@@ -267,26 +280,29 @@ export default function ProjectTable({
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleEditClick(project)}
+                        className="cursor-pointer"
                       >
                         <Edit3 className="h-4 w-4 mr-2" />
                         Edit Project
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDuplicateProject(project)}
+                        className="cursor-pointer"
                       >
                         <Copy className="h-4 w-4 mr-2" />
                         Duplicate
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => copyProjectUrl(project.id)}
+                        className="cursor-pointer"
                       >
-                        <Download className="h-4 w-4 mr-2" />
+                        <Link2 className="h-4 w-4 mr-2" />
                         Copy URL
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleDeleteClick(project)}
-                        className="text-destructive focus:text-destructive"
+                        className="text-destructive focus:text-destructive cursor-pointer"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete Project
@@ -300,19 +316,142 @@ export default function ProjectTable({
         </Table>
       </div>
 
+      {/* Mobile Card View */}
+      <div className="lg:hidden space-y-3">
+        {projects.map((project) => (
+          <Card
+            key={project.id}
+            className="overflow-hidden transition-all hover:shadow-md border-border"
+          >
+            <div className="p-4 space-y-3">
+              {/* Project Header */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0 space-y-1">
+                  <Link
+                    href={`/playground/${project.id}`}
+                    className="font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-2 group/link"
+                  >
+                    <FolderOpen className="h-4 w-4 shrink-0 text-muted-foreground group-hover/link:text-primary transition-colors" />
+                    <span className="line-clamp-1">{project.title}</span>
+                  </Link>
+                  {project.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 pl-6">
+                      {project.description}
+                    </p>
+                  )}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuItem asChild>
+                      <MarkedToggleButton markedForRevision={project.Starmark?.[0]?.isMarked ?? false} id={project.id} />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/playground/${project.id}`}
+                        className="flex items-center cursor-pointer"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Open Project
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/playground/${project.id}`}
+                        target="_blank"
+                        className="flex items-center cursor-pointer"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Open in New Tab
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => handleEditClick(project)}
+                      className="cursor-pointer"
+                    >
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      Edit Project
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleDuplicateProject(project)}
+                      className="cursor-pointer"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Duplicate
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => copyProjectUrl(project.id)}
+                      className="cursor-pointer"
+                    >
+                      <Link2 className="h-4 w-4 mr-2" />
+                      Copy URL
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteClick(project)}
+                      className="text-destructive focus:text-destructive cursor-pointer"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Project
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              {/* Project Meta */}
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                <Badge
+                  variant="outline"
+                  className="bg-primary/10 text-primary border-primary/20 font-medium"
+                >
+                  {project.template}
+                </Badge>
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>{format(new Date(project.createdAt), "MMM dd, yyyy")}</span>
+                </div>
+              </div>
+
+              {/* User Info */}
+              <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+                <div className="w-6 h-6 rounded-full overflow-hidden ring-2 ring-background shadow-sm">
+                  <Image
+                    src={project.user.image ?? "/placeholder.svg"}
+                    alt={project.user.name ?? "User"}
+                    width={24}
+                    height={24}
+                    className="object-cover"
+                  />
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">
+                  {project.user.name ?? "Unknown"}
+                </span>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
       {/* Edit Project Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>Edit Project</DialogTitle>
+            <DialogTitle className="text-xl">Edit Project</DialogTitle>
             <DialogDescription>
-              Make changes to your project details here. Click save when you're
-              done.
+              Make changes to your project details here. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Project Title</Label>
+          <div className="grid gap-5 py-4">
+            <div className="grid gap-2.5">
+              <Label htmlFor="title" className="text-sm font-medium">
+                Project Title
+              </Label>
               <Input
                 id="title"
                 value={editData.title}
@@ -320,10 +459,13 @@ export default function ProjectTable({
                   setEditData((prev) => ({ ...prev, title: e.target.value }))
                 }
                 placeholder="Enter project title"
+                className="h-10"
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+            <div className="grid gap-2.5">
+              <Label htmlFor="description" className="text-sm font-medium">
+                Description
+              </Label>
               <Textarea
                 id="description"
                 value={editData.description}
@@ -334,11 +476,12 @@ export default function ProjectTable({
                   }))
                 }
                 placeholder="Enter project description"
-                rows={3}
+                rows={4}
+                className="resize-none"
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
@@ -351,6 +494,7 @@ export default function ProjectTable({
               type="button"
               onClick={handleUpdateProject}
               disabled={isLoading || !editData.title.trim()}
+              className="gap-2"
             >
               {isLoading ? "Saving..." : "Save Changes"}
             </Button>
@@ -362,14 +506,13 @@ export default function ProjectTable({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Project</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{selectedProject?.title}"? This
-              action cannot be undone. All files and data associated with this
-              project will be permanently removed.
+            <AlertDialogTitle className="text-xl">Delete Project</AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              Are you sure you want to delete <span className="font-semibold text-foreground">"{selectedProject?.title}"</span>?
+              This action cannot be undone. All files and data associated with this project will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="gap-2 sm:gap-0">
             <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteProject}

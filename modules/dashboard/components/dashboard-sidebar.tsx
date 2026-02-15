@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -64,8 +64,8 @@ const lucideIconMap: Record<string, LucideIcon> = {
 
 export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundData: PlaygroundData[] }) {
     const pathname = usePathname()
-    const [starredPlaygrounds, setStarredPlaygrounds] = useState(initialPlaygroundData.filter((p) => p.starred))
-    const [recentPlaygrounds, setRecentPlaygrounds] = useState(initialPlaygroundData)
+    const starredPlaygrounds = useMemo(() => initialPlaygroundData.filter((p) => p.starred), [initialPlaygroundData])
+    const recentPlaygrounds = initialPlaygroundData
 
     return (
         <Sidebar variant="inset" collapsible="icon" className="border-r border-border bg-muted/30">
@@ -136,11 +136,7 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
                         <CollapsibleContent>
                             <SidebarGroupContent>
                                 <SidebarMenu>
-                                    {starredPlaygrounds.length === 0 && recentPlaygrounds.length === 0 ? (
-                                        <div className="text-center text-muted-foreground py-4 w-full text-sm px-2">
-                                            Create your playground
-                                        </div>
-                                    ) : (
+                                    {starredPlaygrounds.length === 0 && recentPlaygrounds.length === 0 ? null : (
                                         <SidebarMenuSub>
                                             {starredPlaygrounds.map((playground) => {
                                                 const IconComponent = lucideIconMap[playground.icon] || Code2
