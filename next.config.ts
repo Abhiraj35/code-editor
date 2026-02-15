@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -7,7 +6,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "*",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
         port: "",
         pathname: "/**",
       },
