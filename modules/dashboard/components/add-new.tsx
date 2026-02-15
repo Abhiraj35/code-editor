@@ -2,7 +2,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button"
-// import { createPlayground } from "@/features/playground/actions";
 import { Plus } from 'lucide-react'
 import Image from "next/image"
 import { useRouter } from "next/navigation";
@@ -11,7 +10,6 @@ import { toast } from "sonner";
 import TemplateSelectingModal from "./template-selecting-modal";
 import { Data } from "../types";
 import { createPlayground } from "../actions";
-// import { createPlayground } from "../actions";
 
 const AddNewButton = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,11 +21,13 @@ const AddNewButton = () => {
         setSelectedTemplate(data)
 
         const res = await createPlayground(data);
-        toast.success("Playground Created successfully"
-
-        )
-        setIsModalOpen(false)
-        router.push(`/playground/${res?.id}`)
+        if (res && "id" in res) {
+            toast.success("Playground Created successfully");
+            setIsModalOpen(false);
+            router.push(`/playground/${res.id}`);
+        } else {
+            toast.error("Failed to create playground");
+        }  
     }
 
 

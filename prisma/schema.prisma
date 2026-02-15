@@ -23,7 +23,7 @@ model User {
   role     UserRole  @default(USER)
 
   myPlayground Playground[]
-  staredPlayground StarMark[]
+  starredPlayground StarMark[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

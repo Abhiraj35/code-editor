@@ -1,10 +1,7 @@
 "use server";
 import { currentUser } from "@/modules/auth/actions";
 import { db } from "@/lib/db";
-import { toast } from "sonner";
 import { revalidatePath } from "next/cache";
-import { exportTraceState } from "next/dist/trace";
-import { AwardIcon } from "lucide-react";
 
 export const toggleStarMarked = async (playgroundId: string, isChecked: boolean) => {
   const user = await currentUser();
@@ -18,7 +15,7 @@ export const toggleStarMarked = async (playgroundId: string, isChecked: boolean)
     if(isChecked){
       await db.starMark.create({
         data: {
-          userId: userId!,
+          userId: userId,
           playgroundId,
           isMarked: isChecked
         }
@@ -37,7 +34,7 @@ export const toggleStarMarked = async (playgroundId: string, isChecked: boolean)
     revalidatePath("/dashboard");
     return {success: true, isMarked: isChecked};
   } catch (error) {
-    return {success: false, error: "failed to update"};
+    return {success: false, error: "failed to update",isChecked: isChecked};
   }
 }
 
@@ -58,7 +55,7 @@ export const getAllPlaygroundForUser = async () => {
         user: true,
         Starmark: {
           where: {
-            userId: user?.id!,
+            userId: user.id,
           },
           select: {
             isMarked: true,
@@ -80,63 +77,90 @@ export const createPlayground = async(data:{
 }) => {
   const user = await currentUser();
 
+  if(!user?.id){
+    return { error: "User not authenticated"};
+  }
+
   const {template, title, description} = data;
 
   try {
-    const playground = db.playground.create({
+    const playground = await db.playground.create({
       data: {
         title:title,
         description: description,
         template: template,
-        userId: user?.id!
+        userId: user.id
       }
     })
 
     return playground;
   } catch (error) {
-    toast.error("Failed to create Playground");
+    return { error: "Failed to create Playground" };
   }
 }
 
 export const deleteProjectById = async(id:string) => {
+  const user = await currentUser();
+
+  if(!user?.id) {
+    return { error: "Not authenticated" }
+  }
+
   try {
     await db.playground.delete({
       where:{
-        id
+        id,
+        userId: user.id  //to ensure user owns the playground
       }
     })
 
     //once i delete a playground i don't want to reload page to see the change, so to prevent this in next js we use this
     revalidatePath("/dashboard")
+    return { success: true};
   } catch (error) {
-    toast.error("Failed to delete Project")
+    return { error: "Failed to delete Project" };
   }
 }
 
 export const editProjectById = async(id: string,data:{title:string,description:string}) => {
+  
+  const user = await currentUser();
+
+  if(!user?.id) {
+    return { error: "Not authenticated" }
+  }
+
   try {
     await db.playground.update({
       where:{
-        id
+        id,
+        userId: user.id
       },
       data
     })
 
     revalidatePath("/dashboard");
+    return { success: true};
   } catch (error) {
-    toast.error("Failed to edit");
+    return { success: false, error: "Failed to edit project" };
   }
 }
 
 export const duplicateProjectById = async(id: string) => {
+  const user = await currentUser();
+
+  if(!user?.id) {
+    return { error: "Not authenticated" }
+  }
+
   try {
     const originalPlayground = await db.playground.findUnique({
-      where: {id}
-      //TODO: add templete file
+      where: {id,userId: user.id}
+      //TODO: add template file
     })
 
     if(!originalPlayground){
-      throw new Error("Original playground not found");
+      return {error: "Playground not found or access denied"};
     }
 
     const duplicatedPlayground = await db.playground.create({
@@ -144,7 +168,7 @@ export const duplicateProjectById = async(id: string) => {
         title: `${originalPlayground.title} (Copy)`,
         description: originalPlayground.description,
         template: originalPlayground.template,
-        userId: originalPlayground.userId,
+        userId: user.id,
 
         //TODO: add template files
       }
@@ -154,6 +178,6 @@ export const duplicateProjectById = async(id: string) => {
   
     return duplicatedPlayground;
   } catch (error) {
-    toast.error("Failed to duplicate project")
+    return { error: "Failed to duplicate project" };
   }
 }
