@@ -1,44 +1,63 @@
-
 import { Button } from "@/components/ui/button"
-import { ArrowDown } from "lucide-react"
+import { Github } from "lucide-react"
 import Image from "next/image"
 
 const AddRepo = () => {
   return (
     <div
-      className="group px-6 py-6 flex flex-row justify-between items-center border rounded-lg bg-muted cursor-pointer 
-      transition-all duration-300 ease-in-out
-      hover:bg-background hover:border-[#E93F3F] hover:scale-[1.02]
-      shadow-[0_2px_10px_rgba(0,0,0,0.08)]
-      hover:shadow-[0_10px_30px_rgba(233,63,63,0.15)]"
+      className="group relative overflow-hidden rounded-xl border border-border bg-card 
+      cursor-pointer transition-all duration-300 ease-out
+      hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5
+      active:scale-[0.98]"
     >
-      <div className="flex flex-row justify-center items-start gap-4">
-        <Button
-          variant={"outline"}
-          className="flex justify-center items-center bg-white group-hover:bg-[#fff8f8] group-hover:border-[#E93F3F] group-hover:text-[#E93F3F] transition-colors duration-300"
-          size={"icon"}
-        >
-          <ArrowDown size={30} className="transition-transform duration-300 group-hover:translate-y-1" />
-        </Button>
-        <div className="flex flex-col">
-          <h1 className="text-xl font-bold text-[#e93f3f]">Open Github Repository</h1>
-          <p className="text-sm text-muted-foreground max-w-[220px]">Work with your repositories in our editor</p>
+      {/* Gradient overlay on hover */}
+      <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent 
+      opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      <div className="relative p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        {/* Left content */}
+        <div className="flex flex-row items-start gap-3 sm:gap-4 flex-1 min-w-0">
+          <div className="shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 
+            flex items-center justify-center
+            group-hover:bg-primary/20 group-hover:scale-110
+            transition-all duration-300">
+              <Github className="w-5 h-5 sm:w-6 sm:h-6 text-primary 
+              transition-transform duration-300 group-hover:scale-110" />
+            </div>
+          </div>
+          
+          <div className="flex flex-col gap-1 flex-1 min-w-0">
+            <h3 className="text-base sm:text-lg font-semibold text-foreground 
+            group-hover:text-primary transition-colors duration-300">
+              Open GitHub Repository
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+              Work with your repositories in our editor
+            </p>
+          </div>
+        </div>
+
+        {/* Right image - hidden on mobile, visible on tablet+ */}
+        <div className="hidden sm:block shrink-0 relative w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28">
+          <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-transparent 
+          rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <Image
+            src={"/github.svg"}
+            alt="Open GitHub repository"
+            width={112}
+            height={112}
+            className="relative transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+          />
         </div>
       </div>
 
-      <div className="relative overflow-hidden">
-        <Image
-          src={"/github.svg"}
-          alt="Open GitHub repository"
-          width={150}
-          height={150}
-          className="transition-transform duration-300 group-hover:scale-110"
-        />
-      </div>
+      {/* Bottom accent line */}
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r 
+      from-transparent via-primary to-transparent
+      scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
     </div>
   )
 }
 
 export default AddRepo
-
-

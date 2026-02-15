@@ -201,7 +201,7 @@ export default function ProjectTable({
                     >
                       <span className="font-semibold">{project.title}</span>
                     </Link>
-                    <span className="text-sm text-gray-500 line-clamp-2 sm:line-clamp-1 break-words">
+                    <span className="text-sm text-gray-500 line-clamp-2 sm:line-clamp-1 wrap-break-word">
                       {project.description ?? ""}
                     </span>
                   </div>
