@@ -19,6 +19,7 @@ import {
     Zap,
     Database,
     FlameIcon,
+    ChevronDown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -33,15 +34,20 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import Image from "next/image"
+import { cn } from "@/lib/utils"
 
 // Define the interface for a single playground item, icon is now a string
 interface PlaygroundData {
     id: string
     name: string
-    icon: string // Changed to string
+    icon: string
     starred: boolean
 }
 
@@ -53,8 +59,7 @@ const lucideIconMap: Record<string, LucideIcon> = {
     Compass: Compass,
     FlameIcon: FlameIcon,
     Terminal: Terminal,
-    Code2: Code2, // Include the default icon
-    // Add any other icons you might use dynamically
+    Code2: Code2,
 }
 
 export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundData: PlaygroundData[] }) {
@@ -63,7 +68,7 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
     const [recentPlaygrounds, setRecentPlaygrounds] = useState(initialPlaygroundData)
 
     return (
-        <Sidebar variant="inset" collapsible="icon" className="border border-r">
+        <Sidebar variant="inset" collapsible="icon" className="border-r border-border bg-muted/30">
             <SidebarHeader>
                 <div className="flex items-center gap-2 px-2 py-3 justify-between group-data-[collapsible=icon]:justify-center">
                     <Image src={"/logo.svg"} alt="logo" height={60} width={60} className="group-data-[collapsible=icon]:hidden" />
@@ -71,10 +76,19 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
                 </div>
             </SidebarHeader>
             <SidebarContent>
+                {/* Primary navigation */}
                 <SidebarGroup>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={pathname === "/"} tooltip="Home">
+                            <SidebarMenuButton
+                                asChild
+                                isActive={pathname === "/"}
+                                className={cn(
+                                    "data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium",
+                                    "[&[data-active=true]_svg]:text-primary"
+                                )}
+                                tooltip="Home"
+                            >
                                 <Link href="/">
                                     <Home className="h-4 w-4" />
                                     <span>Home</span>
@@ -82,97 +96,140 @@ export function DashboardSidebar({ initialPlaygroundData }: { initialPlaygroundD
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={pathname === "/dashboard"} tooltip="Dashboard">
+                            <SidebarMenuButton
+                                asChild
+                                isActive={pathname === "/dashboard"}
+                                className={cn(
+                                    "data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium",
+                                    "[&[data-active=true]_svg]:text-primary"
+                                )}
+                                tooltip="Dashboard"
+                            >
                                 <Link href="/dashboard">
                                     <LayoutDashboard className="h-4 w-4" />
                                     <span>Dashboard</span>
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
-
                     </SidebarMenu>
                 </SidebarGroup>
 
-                <SidebarGroup>
-                    <SidebarGroupLabel>
-                        <Star className="h-4 w-4 mr-2" />
-                        Starred
-                    </SidebarGroupLabel>
-                    <SidebarGroupAction title="Add starred playground">
-                        <Plus className="h-4 w-4" />
-                    </SidebarGroupAction>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
+                {/* Collapsible sections for Starred and Recent */}
+                <SidebarGroup className="flex-1 overflow-auto">
+                    {/* Starred Section */}
+                    <Collapsible defaultOpen className="group/collapsible">
+                        <SidebarGroupLabel className="flex items-center gap-2 cursor-pointer py-1.5 px-2 uppercase text-xs font-semibold tracking-wider text-muted-foreground hover:text-foreground">
+                            <CollapsibleTrigger className="flex flex-1 items-center gap-2 outline-none">
+                                <Star className="h-4 w-4 shrink-0" />
+                                <span className="flex-1 text-left">Starred</span>
+                                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                            </CollapsibleTrigger>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 shrink-0"
+                                title="Add starred playground"
+                            >
+                                <Plus className="h-4 w-4" />
+                            </Button>
+                        </SidebarGroupLabel>
+                        <CollapsibleContent>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    {starredPlaygrounds.length === 0 && recentPlaygrounds.length === 0 ? (
+                                        <div className="text-center text-muted-foreground py-4 w-full text-sm px-2">
+                                            Create your playground
+                                        </div>
+                                    ) : (
+                                        <SidebarMenuSub>
+                                            {starredPlaygrounds.map((playground) => {
+                                                const IconComponent = lucideIconMap[playground.icon] || Code2
+                                                return (
+                                                    <SidebarMenuSubItem key={playground.id}>
+                                                        <SidebarMenuSubButton
+                                                            asChild
+                                                            isActive={pathname === `/playground/${playground.id}`}
+                                                        >
+                                                            <Link href={`/playground/${playground.id}`}>
+                                                                {IconComponent && <IconComponent className="h-4 w-4" />}
+                                                                <span>{playground.name}</span>
+                                                            </Link>
+                                                        </SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                )
+                                            })}
+                                        </SidebarMenuSub>
+                                    )}
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </CollapsibleContent>
+                    </Collapsible>
 
-                            {starredPlaygrounds.length === 0 && recentPlaygrounds.length === 0 ? (
-                                <div className="text-center text-muted-foreground py-4 w-full">Create your playground</div>
-                            ) : (
-                                starredPlaygrounds.map((playground) => {
-                                    const IconComponent = lucideIconMap[playground.icon] || Code2;
-                                    return (
-                                        <SidebarMenuItem key={playground.id}>
-                                            <SidebarMenuButton
-                                                asChild
-                                                isActive={pathname === `/playground/${playground.id}`}
-                                                tooltip={playground.name}
-                                            >
-                                                <Link href={`/playground/${playground.id}`}>
-                                                    {IconComponent && <IconComponent className="h-4 w-4" />}
-                                                    <span>{playground.name}</span>
-                                                </Link>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    );
-                                })
-                            )}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel>
-                        <History className="h-4 w-4 mr-2" />
-                        Recent
-                    </SidebarGroupLabel>
-                    <SidebarGroupAction title="Create new playground">
-                        <FolderPlus className="h-4 w-4" />
-                    </SidebarGroupAction>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {starredPlaygrounds.length === 0 && recentPlaygrounds.length === 0 ? null : (
-                                recentPlaygrounds.map((playground) => {
-                                    const IconComponent = lucideIconMap[playground.icon] || Code2;
-                                    return (
-                                        <SidebarMenuItem key={playground.id}>
-                                            <SidebarMenuButton
-                                                asChild
-                                                isActive={pathname === `/playground/${playground.id}`}
-                                                tooltip={playground.name}
-                                            >
-                                                <Link href={`/playground/${playground.id}`}>
-                                                    {IconComponent && <IconComponent className="h-4 w-4" />}
-                                                    <span>{playground.name}</span>
-                                                </Link>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    );
-                                })
-                            )}
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild tooltip="View all">
-                                    <Link href="/playgrounds">
-                                        <span className="text-sm text-muted-foreground">View all playgrounds</span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
+                    {/* Recent Section */}
+                    <Collapsible defaultOpen className="group/collapsible">
+                        <SidebarGroupLabel className="flex items-center gap-2 cursor-pointer py-1.5 px-2 uppercase text-xs font-semibold tracking-wider text-muted-foreground hover:text-foreground">
+                            <CollapsibleTrigger className="flex flex-1 items-center gap-2 outline-none">
+                                <History className="h-4 w-4 shrink-0" />
+                                <span className="flex-1 text-left">Recent</span>
+                                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                            </CollapsibleTrigger>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 shrink-0"
+                                title="Create new playground"
+                            >
+                                <FolderPlus className="h-4 w-4" />
+                            </Button>
+                        </SidebarGroupLabel>
+                        <CollapsibleContent>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    {starredPlaygrounds.length === 0 && recentPlaygrounds.length === 0 ? null : (
+                                        <SidebarMenuSub>
+                                            {recentPlaygrounds.map((playground) => {
+                                                const IconComponent = lucideIconMap[playground.icon] || Code2
+                                                return (
+                                                    <SidebarMenuSubItem key={playground.id}>
+                                                        <SidebarMenuSubButton
+                                                            asChild
+                                                            isActive={pathname === `/playground/${playground.id}`}
+                                                        >
+                                                            <Link href={`/playground/${playground.id}`}>
+                                                                {IconComponent && <IconComponent className="h-4 w-4" />}
+                                                                <span>{playground.name}</span>
+                                                            </Link>
+                                                        </SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                )
+                                            })}
+                                            <SidebarMenuSubItem>
+                                                <SidebarMenuSubButton asChild>
+                                                    <Link href="/playgrounds">
+                                                        <span className="text-sm text-muted-foreground">View all playgrounds</span>
+                                                    </Link>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        </SidebarMenuSub>
+                                    )}
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </CollapsibleContent>
+                    </Collapsible>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip="Settings">
+                        <SidebarMenuButton
+                            asChild
+                            isActive={pathname === "/settings"}
+                            className={cn(
+                                "data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-medium",
+                                "[&[data-active=true]_svg]:text-primary"
+                            )}
+                            tooltip="Settings"
+                        >
                             <Link href="/settings">
                                 <Settings className="h-4 w-4" />
                                 <span>Settings</span>
