@@ -11,7 +11,6 @@ these routes require authentication
 */
 export const protectedRoutes : string[] = [
     '/dashboard',
-    '/settings',
 ]
 
 /* 
