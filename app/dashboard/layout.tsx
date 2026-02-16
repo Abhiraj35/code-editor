@@ -1,5 +1,6 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getAllPlaygroundForUser } from "@/modules/dashboard/actions/index";
+import { CommandPalette } from "@/modules/dashboard/components/command-palette";
 import { DashboardSidebar } from "@/modules/dashboard/components/dashboard-sidebar";
 import { Project } from "@/modules/dashboard/types";
 
@@ -35,7 +36,10 @@ export default async function DashboardLayout({
             <div className="flex min-h-screen w-full overflow-x-hidden">
                 {/* Dashboard Sidebar */}
                 <DashboardSidebar initialPlaygroundData={formattedPlaygroundData ?? []} />
-                <main className="flex-1">{children}</main>
+                <main className="flex-1">
+                    <CommandPalette projects={formattedPlaygroundData ?? []} />
+                    {children}
+                </main>
             </div>
         </SidebarProvider>
     )

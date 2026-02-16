@@ -22,10 +22,12 @@ import {
   Code2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Project } from "../types";
 
 interface CommandPaletteProps {
-  projects: Project[];
+  projects: {
+    id: string;
+    name: string;
+  }[];
 }
 
 export function CommandPalette({ projects }: CommandPaletteProps) {
@@ -74,7 +76,7 @@ export function CommandPalette({ projects }: CommandPaletteProps) {
                   onSelect={() => runCommand(() => router.push(`/playground/${project.id}`))}
                 >
                   <Code2 className="mr-2 h-4 w-4" />
-                  <span>{project.title}</span>
+                  <span>{project.name}</span>
                 </CommandItem>
               ))}
             </CommandGroup>

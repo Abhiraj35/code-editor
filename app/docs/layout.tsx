@@ -19,29 +19,32 @@ export default function DocsLayout({
     <div className="flex flex-col min-h-screen">
       <Header />
 
-      {/* Mobile Sidebar Trigger - Floating above content on small screens */}
-      <div className="lg:hidden fixed bottom-6 right-6 z-50">
+      {/* Mobile Docs Sub-Header */}
+      <div className="lg:hidden sticky top-20 z-30 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <Button size="icon" className="rounded-full shadow-lg w-12 h-12">
-              <Menu className="w-6 h-6" />
-              <span className="sr-only">Toggle documentation menu</span>
+            <Button variant="outline" size="sm" className="gap-2 text-xs h-8">
+              <Menu className="w-4 h-4" />
+              Menu
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72">
-            <SheetHeader className="mb-6">
+            <SheetHeader className="mb-6 border-b pb-4">
               <SheetTitle className="text-left">Documentation</SheetTitle>
             </SheetHeader>
-            <div className="overflow-y-auto h-full pb-10">
+            <div className="overflow-y-auto h-[calc(100vh-8rem)]">
               <DocsSidebar />
             </div>
           </SheetContent>
         </Sheet>
+        <div className="ml-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Getting Started
+        </div>
       </div>
 
-      <div className="flex-1 flex pt-20">
+      <div className="flex-1 flex pt-4 lg:pt-24">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:block w-64 border-r border-border p-6 h-[calc(100vh-5rem)] sticky top-20 overflow-y-auto">
+        <aside className="hidden lg:block w-64 border-r border-border p-6 h-[calc(100vh-6rem)] sticky top-24 overflow-y-auto">
           <DocsSidebar />
         </aside>
 
