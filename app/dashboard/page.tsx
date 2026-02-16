@@ -7,9 +7,10 @@ import React from "react";
 
 const Page = async () => {
     const playgrounds = await getAllPlaygroundForUser();
-    // console.log("Playgrounds:", playgrounds);
+
     return (
         <div className="flex flex-col justify-start items-center min-h-screen w-full min-w-0 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 overflow-x-hidden">
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 w-full">
                 <AddNewButton />
                 <AddRepo />

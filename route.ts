@@ -1,7 +1,8 @@
 //An array of routes that are accessible to the public
 //these routes do not require authentication
 export const publicRoutes : string[] = [
-
+    '/',
+    '/docs',
 ]
 
 /* 
@@ -9,7 +10,7 @@ An array of routes that are protected
 these routes require authentication
 */
 export const protectedRoutes : string[] = [
-    '/'
+    '/dashboard',
 ]
 
 /* 

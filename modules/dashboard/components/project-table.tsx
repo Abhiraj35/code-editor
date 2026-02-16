@@ -58,6 +58,7 @@ import {
 import { toast } from "sonner";
 import { MarkedToggleButton } from "./marked-toggle";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProjectTableProps {
   projects: Project[];
@@ -190,12 +191,16 @@ export default function ProjectTable({
             </TableRow>
           </TableHeader>
           <TableBody>
+            <AnimatePresence mode="popLayout">
             {projects.map((project, index) => (
-              <TableRow
+              <motion.tr
                 key={project.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
                 className={cn(
-                  "group transition-colors hover:bg-muted/50",
-                  index !== projects.length - 1 && "border-b border-border/50"
+                  "group transition-colors hover:bg-muted/50 border-b border-border/50 last:border-0 h-16",
                 )}
               >
                 <TableCell className="font-medium">
@@ -310,17 +315,25 @@ export default function ProjectTable({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
-              </TableRow>
+              </motion.tr>
             ))}
+            </AnimatePresence>
           </TableBody>
         </Table>
       </div>
 
       {/* Mobile Card View */}
       <div className="lg:hidden space-y-3">
-        {projects.map((project) => (
-          <Card
+        <AnimatePresence mode="popLayout">
+        {projects.map((project, index) => (
+          <motion.div
             key={project.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2, delay: index * 0.05 }}
+          >
+          <Card
             className="overflow-hidden transition-all hover:shadow-md border-border"
           >
             <div className="p-4 space-y-3">
@@ -435,7 +448,9 @@ export default function ProjectTable({
               </div>
             </div>
           </Card>
+          </motion.div>
         ))}
+        </AnimatePresence>
       </div>
 
       {/* Edit Project Dialog */}
