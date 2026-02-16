@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getAllPlaygroundForUser } from "@/modules/dashboard/actions/index";
 import { DashboardSidebar } from "@/modules/dashboard/components/dashboard-sidebar";
+import { Project } from "@/modules/dashboard/types";
 
 export default async function DashboardLayout({
     children,
@@ -19,7 +20,7 @@ export default async function DashboardLayout({
         ANGULAR: "Terminal",
     }
 
-    const formattedPlaygroundData = playgroundData?.map((item) => ({
+    const formattedPlaygroundData = playgroundData?.map((item: Project) => ({
         id: item.id,
         name: item.title,
         starred: item.Starmark?.[0]?.isMarked || false,

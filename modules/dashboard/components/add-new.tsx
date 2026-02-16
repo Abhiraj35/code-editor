@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from 'lucide-react'
 import Image from "next/image"
 import { useRouter } from "next/navigation";
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner";
 import TemplateSelectingModal from "./template-selecting-modal";
 import { Data } from "../types";
@@ -14,6 +14,16 @@ const AddNewButton = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<Data | null>(null)
     const router = useRouter()
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "n" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) {
+                setIsModalOpen(true);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
 
     const handleSubmit = async (data: Data) => {
         setSelectedTemplate(data)
