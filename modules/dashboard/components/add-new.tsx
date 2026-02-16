@@ -17,7 +17,21 @@ const AddNewButton = () => {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "n" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) {
+            const target = e.target as HTMLElement | null;
+
+            if (!target) {
+                return;
+            }
+
+            const tagName = target.tagName;
+            const role = target.getAttribute("role");
+            const isTextLikeTarget =
+                tagName === "INPUT" ||
+                tagName === "TEXTAREA" ||
+                target.isContentEditable ||
+                role === "textbox";
+
+            if (e.key === "n" && !isTextLikeTarget) {
                 setIsModalOpen(true);
             }
         };
