@@ -9,10 +9,10 @@ const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-  throw new Error("Missing Google OAuth credentials in environment variables");
+  console.warn("Missing Google OAuth credentials in environment variables");
 }
 if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
-  throw new Error("Missing GitHub OAuth credentials in environment variables");
+  console.warn("Missing GitHub OAuth credentials in environment variables");
 }
 
 export default {
