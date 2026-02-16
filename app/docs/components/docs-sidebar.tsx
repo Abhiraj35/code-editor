@@ -4,9 +4,21 @@ export const DocsSidebar = () => {
       <div>
         <h4 className="font-bold mb-3 text-sm uppercase tracking-wider text-foreground">Getting Started</h4>
         <ul className="space-y-2 text-sm text-muted-foreground">
-          <li className="text-primary font-semibold cursor-pointer">Introduction</li>
-          <li className="hover:text-foreground cursor-pointer transition-colors">Installation</li>
-          <li className="hover:text-foreground cursor-pointer transition-colors">Quick Start</li>
+          <li>
+            <a href="/docs/introduction" className="text-primary font-semibold transition-colors hover:text-foreground">
+              Introduction
+            </a>
+          </li>
+          <li>
+            <a href="/docs/installation" className="transition-colors hover:text-foreground">
+              Installation
+            </a>
+          </li>
+          <li>
+            <a href="/docs/quick-start" className="transition-colors hover:text-foreground">
+              Quick Start
+            </a>
+          </li>
         </ul>
       </div>
       <div>
