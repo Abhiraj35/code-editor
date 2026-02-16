@@ -73,7 +73,7 @@ export const Features = () => {
               <p className="text-muted-foreground">{feature.description}</p>
 
               {/* Subtle hover background effect */}
-              <div className="absolute inset-0 -z-10 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </motion.div>
           ))}
         </div>
