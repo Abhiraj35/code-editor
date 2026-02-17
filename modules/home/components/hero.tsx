@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -62,16 +62,16 @@ export const Hero = () => {
           className="relative mx-auto max-w-5xl"
         >
           <div className="relative rounded-2xl border border-border bg-card shadow-2xl overflow-hidden aspect-video">
-             <div className="absolute inset-0 bg-linear-to-tr from-primary/5 via-transparent to-secondary/5" />
-             <Image
-                src="/hero.svg"
-                alt="App Preview"
-                fill
-                className="object-cover opacity-90 p-4"
-             />
-             {/* Decorative elements */}
-             <div className="absolute -top-px left-20 right-20 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent" />
-             <div className="absolute -bottom-px left-20 right-20 h-px bg-linear-to-r from-transparent via-secondary/50 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-tr from-primary/5 via-transparent to-secondary/5" />
+            <Image
+              src="/hero.svg"
+              alt="App Preview"
+              fill
+              className="object-cover opacity-90 p-4"
+            />
+            {/* Decorative elements */}
+            <div className="absolute -top-px left-20 right-20 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent" />
+            <div className="absolute -bottom-px left-20 right-20 h-px bg-linear-to-r from-transparent via-secondary/50 to-transparent" />
           </div>
 
           {/* Background Glow */}

@@ -4,9 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import UserButton from "../auth/components/user-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
+import { useCurrentUser } from "../auth/hooks/use-current-user";
+import { Button } from "@/components/ui/button";
 
 export function Header() {
+  const user = useCurrentUser();
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4 pointer-events-none">
       <motion.div
@@ -57,7 +61,22 @@ export function Header() {
             <ThemeToggle />
           </div>
           <div className="h-4 w-px bg-border mx-1" />
-          <UserButton />
+          {user ? (
+            <UserButton />
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link href="/auth/sign-in">
+                <Button variant="ghost" size="sm">
+                  Sign in
+                </Button>
+              </Link>
+              <Link href="/auth/sign-in">
+                <Button variant="brand" size="sm">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </motion.div>
     </header>

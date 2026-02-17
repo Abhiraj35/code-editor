@@ -39,8 +39,10 @@ const UserButton = () => {
       <DropdownMenuSeparator/>
           <DropdownMenuItem asChild>
             <LogoutButton>
-                <LogOut className="h-4 w-4 mr-2"/>
-                LogOut
+                <span className="font-medium flex items-center gap-2">
+                  <LogOut className="h-4 w-4 ml-2" aria-hidden="true" />
+                  Log out
+                </span>
             </LogoutButton>
           </DropdownMenuItem>
     </DropdownMenuContent>
