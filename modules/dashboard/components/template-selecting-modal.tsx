@@ -131,7 +131,7 @@ const templates: TemplateOption[] = [
       "Dependency Injection",
       "TypeScript Support",
     ],
-    category: "fullstack",
+    category: "frontend",
   },
 ];
 
