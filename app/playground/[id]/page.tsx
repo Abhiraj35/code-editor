@@ -13,6 +13,8 @@ import { Bot, FileText, Save, Settings, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import PlaygroundEditor from '@/modules/playground/components/playground-editor';
 
 const MainPlaygroundPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -55,7 +57,7 @@ const MainPlaygroundPage = () => {
         <TemplateFileTree
           data={templateData!}
           onFileSelect={handleFileSelect}
-          selectedFile={activeFile}
+          selectedFile={activeFile ?? undefined}
           title="File Explorer"
           onAddFile={() => { }}
           onAddFolder={() => { }}
@@ -186,7 +188,19 @@ const MainPlaygroundPage = () => {
                   </Tabs>
                 </div>
                 <div className="flex-1">
-                  {activeFile?.content}
+                  <ResizablePanelGroup
+                    orientation="horizontal"
+                    className="h-full"
+                  >
+                    <ResizablePanel defaultSize={isPreviewVisible ? 50 : 100}>
+                      <PlaygroundEditor 
+                        activeFile={activeFile ?? undefined}
+                        content={activeFile?.content || ""}
+                        onContentChange={(value) => {}}
+                      />
+
+                    </ResizablePanel>
+                  </ResizablePanelGroup>
                 </div>
               </div>
             ) : (
