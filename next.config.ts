@@ -1,19 +1,35 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  images: {
-    remotePatterns: [
+  images:{
+    remotePatterns:[
       {
-        //TODO: security fix currently it permits loading image from any https domian. fix it later
-        protocol: "https",
-        hostname: "*",
-        port: "",
-        pathname: "/**",
+        protocol:"https",
+        hostname:"*",
+        port:'',
+        pathname:"/**"
       }
-    ],
+    ]
   },
-  reactCompiler: true,
+  async headers() {
+    return [
+      {
+        // Apply to all routes to ensure cross-origin isolation everywhere
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'credentialless',
+          },
+        ],
+      },
+    ];
+  },
+  reactStrictMode:false
 };
 
 export default nextConfig;

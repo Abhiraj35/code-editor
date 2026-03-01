@@ -67,6 +67,7 @@ export const getAllPlaygroundForUser = async () => {
     return playground;
   } catch (error) {
     console.log(error);
+    return [];
   }
 };
 
