@@ -17,6 +17,7 @@ interface WebContainerPreviewProps {
     instance: WebContainer | null;
     writeFileSync: (path: string, content: string) => Promise<void>;
     forceResetup?: boolean; // Optional prop to force re-setup
+    fileSaveCounter?: number; // Increments on file save to trigger iframe reload
 }
 const WebContainerPreview = ({
     templateData,
@@ -26,6 +27,7 @@ const WebContainerPreview = ({
     serverUrl,
     writeFileSync,
     forceResetup = false,
+    fileSaveCounter = 0,
 }: WebContainerPreviewProps) => {
     const [previewUrl, setPreviewUrl] = useState<string>("");
     const [loadingState, setLoadingState] = useState({
@@ -40,8 +42,30 @@ const WebContainerPreview = ({
     const [setupError, setSetupError] = useState<string | null>(null);
     const [isSetupComplete, setIsSetupComplete] = useState(false);
     const [isSetupInProgress, setIsSetupInProgress] = useState(false);
+    const [iframeKey, setIframeKey] = useState(0);
 
     const terminalRef = useRef<any>(null);
+
+    // Reload iframe when fileSaveCounter changes (file was saved)
+    useEffect(() => {
+        if (fileSaveCounter > 0 && previewUrl) {
+            if (terminalRef.current?.writeToTerminal) {
+                terminalRef.current.writeToTerminal(
+                    "\r\n🔄 File saved. Reloading preview...\r\n"
+                );
+            }
+            // Small delay to let the WebContainer dev server pick up the file change
+            const timer = setTimeout(() => {
+                setIframeKey((prev) => prev + 1);
+                if (terminalRef.current?.writeToTerminal) {
+                    terminalRef.current.writeToTerminal(
+                        "✅ Preview reloaded\r\n"
+                    );
+                }
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [fileSaveCounter, previewUrl]);
 
     // Reset setup state when forceResetup changes
     useEffect(() => {
@@ -343,6 +367,7 @@ const WebContainerPreview = ({
                 <div className="h-full flex flex-col">
                     <div className="flex-1">
                         <iframe
+                            key={iframeKey}
                             src={previewUrl}
                             className="w-full h-full border-none"
                             title="WebContainer Preview"

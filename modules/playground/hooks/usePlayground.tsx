@@ -86,6 +86,7 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
         }
         try {
             await SaveUpdatedCode(id, dataToSave);
+            setTemplateData(dataToSave);
             toast.success("Template saved successfully!");
         } catch (error) {
             console.error("Error saving template:", error);
