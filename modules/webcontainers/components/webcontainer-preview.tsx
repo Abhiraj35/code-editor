@@ -49,9 +49,19 @@ const WebContainerPreview = ({
     // Reload iframe when fileSaveCounter changes (file was saved)
     useEffect(() => {
         if (fileSaveCounter > 0 && previewUrl) {
+            if (terminalRef.current?.writeToTerminal) {
+                terminalRef.current.writeToTerminal(
+                    "\r\n🔄 File saved. Reloading preview...\r\n"
+                );
+            }
             // Small delay to let the WebContainer dev server pick up the file change
             const timer = setTimeout(() => {
                 setIframeKey((prev) => prev + 1);
+                if (terminalRef.current?.writeToTerminal) {
+                    terminalRef.current.writeToTerminal(
+                        "✅ Preview reloaded\r\n"
+                    );
+                }
             }, 500);
             return () => clearTimeout(timer);
         }
