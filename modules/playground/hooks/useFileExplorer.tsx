@@ -120,6 +120,21 @@ function collectFileIdsInFolder(folder: TemplateFolder, templateData: TemplateFo
     return ids;
 }
 
+function sortFolderItems(items: (TemplateFolder | TemplateFile)[]) {
+    return items.sort((a, b) => {
+        const aIsFolder = "folderName" in a;
+        const bIsFolder = "folderName" in b;
+
+        if (aIsFolder && !bIsFolder) return -1;
+        if (!aIsFolder && bIsFolder) return 1;
+
+        const aName = aIsFolder ? a.folderName : a.filename;
+        const bName = bIsFolder ? b.folderName : b.filename;
+
+        return aName.localeCompare(bName, undefined, { sensitivity: "base" });
+    });
+}
+
 const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
     templateData: null,
     playgroundId: "",
@@ -201,6 +216,7 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
             const currentFolder = traverseToFolder(updatedTemplateData, parentPath);
 
             currentFolder.items.push(newFile);
+            currentFolder.items = sortFolderItems(currentFolder.items);
             set({ templateData: updatedTemplateData });
             toast.success(`Created file: ${newFile.filename}.${newFile.fileExtension}`);
 
@@ -230,6 +246,8 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
             const currentFolder = traverseToFolder(updatedTemplateData, parentPath);
 
             currentFolder.items.push(newFolder);
+            currentFolder.items = sortFolderItems(currentFolder.items);
+            console.log("hello");
             set({ templateData: updatedTemplateData });
             toast.success(`Created folder: ${newFolder.folderName}`);
 
@@ -250,7 +268,6 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
     handleDeleteFile: async (
         file,
         parentPath,
-        // FIX #6: Added `instance` parameter so WebContainer can be synced on delete
         instance,
         saveTemplateData
     ) => {
@@ -258,10 +275,8 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
         if (!templateData) return;
 
         try {
-            // FIX #8: deepClone instead of JSON.parse(JSON.stringify(...))
             const updatedTemplateData = deepClone(templateData);
 
-            // FIX #5: traverseToFolder throws on invalid path segments
             const currentFolder = traverseToFolder(updatedTemplateData, parentPath);
 
             currentFolder.items = currentFolder.items.filter(
@@ -272,12 +287,6 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
             );
 
             const fileId = generateFileId(file, templateData);
-
-            // FIX: Replaced two separate set() + closeFile() calls with ONE atomic set().
-            // Previously: set({ templateData }) then get().closeFile() triggered a second
-            // set({ openFiles, activeFileId, editorContent }) WITHOUT templateData.
-            // Zustand's shallow merge meant the sidebar re-rendered with the OLD templateData,
-            // so the deleted file stayed visible until a refresh.
             set((state) => {
                 const newOpenFiles = state.openFiles.filter((f) => f.id !== fileId);
 
@@ -296,7 +305,7 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
                 }
 
                 return {
-                    templateData: updatedTemplateData,  // ✅ sidebar updates immediately
+                    templateData: updatedTemplateData,
                     openFiles: newOpenFiles,
                     activeFileId: newActiveFileId,
                     editorContent: newEditorContent,
@@ -305,9 +314,6 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
 
             await saveTemplateData(updatedTemplateData);
 
-            // FIX #6: Sync WebContainer filesystem on file delete
-            // Previously, delete never called instance.fs.rm, leaving the
-            // WebContainer out of sync with templateData and the database.
             if (instance && instance.fs) {
                 const filePath = parentPath
                     ? `${parentPath}/${file.filename}.${file.fileExtension}`
@@ -398,10 +404,8 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
         const oldFileId = generateFileId(file, templateData);
 
         try {
-            // FIX #8: deepClone instead of JSON.parse(JSON.stringify(...))
             const updatedTemplateData = deepClone(templateData);
 
-            // FIX #5: traverseToFolder throws on invalid path segments
             const currentFolder = traverseToFolder(updatedTemplateData, parentPath);
 
             const fileIndex = currentFolder.items.findIndex(
@@ -411,47 +415,67 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
                     item.fileExtension === file.fileExtension
             );
 
-            if (fileIndex !== -1) {
-                const updatedFile = {
-                    ...currentFolder.items[fileIndex],
-                    filename: newFilename,
-                    fileExtension: newExtension,
-                } as TemplateFile;
-                currentFolder.items[fileIndex] = updatedFile;
+            if (fileIndex === -1) return;
 
-                const newFileId = generateFileId(updatedFile, updatedTemplateData);
+            const updatedFile = {
+                ...currentFolder.items[fileIndex],
+                filename: newFilename,
+                fileExtension: newExtension,
+            } as TemplateFile;
 
-                const updatedOpenFiles = openFiles.map((f) =>
-                    f.id === oldFileId
-                        ? {
-                            ...f,
-                            id: newFileId,
-                            filename: newFilename,
-                            fileExtension: newExtension,
-                        }
-                        : f
-                );
+            currentFolder.items[fileIndex] = updatedFile;
+            currentFolder.items = sortFolderItems(currentFolder.items);
 
-                set({
-                    templateData: updatedTemplateData,
-                    openFiles: updatedOpenFiles,
-                    activeFileId: activeFileId === oldFileId ? newFileId : activeFileId,
-                });
+            const newFileId = generateFileId(updatedFile, updatedTemplateData);
 
-                await saveTemplateData(updatedTemplateData);
+            if (instance && instance.fs) {
+                const oldPath = parentPath
+                    ? `${parentPath}/${file.filename}.${file.fileExtension}`
+                    : `${file.filename}.${file.fileExtension}`;
 
-                if (instance && instance.fs) {
-                    const oldPath = parentPath
-                        ? `${parentPath}/${file.filename}.${file.fileExtension}`
-                        : `${file.filename}.${file.fileExtension}`;
-                    const newPath = parentPath
-                        ? `${parentPath}/${newFilename}.${newExtension}`
-                        : `${newFilename}.${newExtension}`;
+                const newPath = parentPath
+                    ? `${parentPath}/${newFilename}.${newExtension}`
+                    : `${newFilename}.${newExtension}`;
+
+                try {
+                    await instance.fs.stat(oldPath);
                     await instance.fs.rename(oldPath, newPath);
+                } catch (fsError) {
+                    console.warn(
+                        "File not found in WebContainer FS, skipping fs rename:",
+                        fsError
+                    );
                 }
-
-                toast.success(`Renamed file to: ${newFilename}.${newExtension}`);
             }
+
+            const updatedOpenFiles = openFiles.map((f) =>
+                f.id === oldFileId
+                    ? {
+                        ...f,
+                        id: newFileId,
+                        filename: newFilename,
+                        fileExtension: newExtension,
+                    }
+                    : f
+            );
+
+            let newEditorContent = get().editorContent;
+
+            if (activeFileId === oldFileId) {
+                const activeFile = updatedOpenFiles.find((f) => f.id === newFileId);
+                newEditorContent = activeFile?.content || "";
+            }
+
+            set({
+                templateData: updatedTemplateData,
+                openFiles: updatedOpenFiles,
+                activeFileId: activeFileId === oldFileId ? newFileId : activeFileId,
+                editorContent: newEditorContent,
+            });
+
+            await saveTemplateData(updatedTemplateData);
+
+            toast.success(`Renamed file to: ${newFilename}.${newExtension}`);
         } catch (error) {
             console.error("Error renaming file:", error);
             toast.error("Failed to rename file");
@@ -477,29 +501,41 @@ const fileExplorerStore: StateCreator<FileExplorerState> = (set, get) => ({
                 (item) => "folderName" in item && item.folderName === folder.folderName
             );
 
-            if (folderIndex !== -1) {
-                const updatedFolder = {
-                    ...currentFolder.items[folderIndex],
-                    folderName: newFolderName,
-                } as TemplateFolder;
-                currentFolder.items[folderIndex] = updatedFolder;
+            if (folderIndex === -1) return;
 
-                set({ templateData: updatedTemplateData });
+            const updatedFolder = {
+                ...currentFolder.items[folderIndex],
+                folderName: newFolderName,
+            } as TemplateFolder;
 
-                await saveTemplateData(updatedTemplateData);
+            currentFolder.items[folderIndex] = updatedFolder;
+            currentFolder.items = sortFolderItems(currentFolder.items);
 
-                if (instance && instance.fs) {
-                    const oldPath = parentPath
-                        ? `${parentPath}/${folder.folderName}`
-                        : folder.folderName;
-                    const newPath = parentPath
-                        ? `${parentPath}/${newFolderName}`
-                        : newFolderName;
+            if (instance && instance.fs) {
+                const oldPath = parentPath
+                    ? `${parentPath}/${folder.folderName}`
+                    : folder.folderName;
+
+                const newPath = parentPath
+                    ? `${parentPath}/${newFolderName}`
+                    : newFolderName;
+
+                try {
+                    await instance.fs.stat(oldPath);
                     await instance.fs.rename(oldPath, newPath);
+                } catch (fsError) {
+                    console.warn(
+                        "Folder not found in WebContainer FS, skipping fs rename:",
+                        fsError
+                    );
                 }
-
-                toast.success(`Renamed folder to: ${newFolderName}`);
             }
+
+            set({ templateData: updatedTemplateData });
+
+            await saveTemplateData(updatedTemplateData);
+
+            toast.success(`Renamed folder to: ${newFolderName}`);
         } catch (error) {
             console.error("Error renaming folder:", error);
             toast.error("Failed to rename folder");
