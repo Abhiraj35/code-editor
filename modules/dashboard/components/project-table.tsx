@@ -187,7 +187,7 @@ export default function ProjectTable({
               <TableHead className="font-semibold text-foreground">Template</TableHead>
               <TableHead className="font-semibold text-foreground">Created</TableHead>
               <TableHead className="font-semibold text-foreground">User</TableHead>
-              <TableHead className="w-[50px] text-right font-semibold text-foreground">Actions</TableHead>
+              <TableHead className="w-12.5 text-right font-semibold text-foreground">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -455,7 +455,7 @@ export default function ProjectTable({
 
       {/* Edit Project Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[480px]">
+        <DialogContent className="sm:max-w-120">
           <DialogHeader>
             <DialogTitle className="text-xl">Edit Project</DialogTitle>
             <DialogDescription>
