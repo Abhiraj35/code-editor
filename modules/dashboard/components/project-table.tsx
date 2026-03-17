@@ -207,6 +207,8 @@ export default function ProjectTable({
                     <div className="flex flex-col gap-1 py-1">
                       <Link
                         href={`/playground/${project.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-2 group/link"
                       >
                         <FolderOpen className="h-4 w-4 text-muted-foreground group-hover/link:text-primary transition-colors" />
@@ -266,6 +268,8 @@ export default function ProjectTable({
                         <DropdownMenuItem asChild>
                           <Link
                             href={`/playground/${project.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="flex items-center cursor-pointer"
                           >
                             <Eye className="h-4 w-4 mr-2" />
@@ -276,6 +280,7 @@ export default function ProjectTable({
                           <Link
                             href={`/playground/${project.id}`}
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="flex items-center cursor-pointer"
                           >
                             <ExternalLink className="h-4 w-4 mr-2" />
@@ -342,6 +347,8 @@ export default function ProjectTable({
                     <div className="flex-1 min-w-0 space-y-1">
                       <Link
                         href={`/playground/${project.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-2 group/link"
                       >
                         <FolderOpen className="h-4 w-4 shrink-0 text-muted-foreground group-hover/link:text-primary transition-colors" />
@@ -367,6 +374,8 @@ export default function ProjectTable({
                         <DropdownMenuItem asChild>
                           <Link
                             href={`/playground/${project.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="flex items-center cursor-pointer"
                           >
                             <Eye className="h-4 w-4 mr-2" />
@@ -377,6 +386,7 @@ export default function ProjectTable({
                           <Link
                             href={`/playground/${project.id}`}
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="flex items-center cursor-pointer"
                           >
                             <ExternalLink className="h-4 w-4 mr-2" />
