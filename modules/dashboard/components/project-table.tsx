@@ -179,15 +179,15 @@ export default function ProjectTable({
   return (
     <>
       {/* Desktop Table View */}
-      <div className="hidden lg:block rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+      <div className="hidden lg:block w-full rounded-xl border border-border bg-card overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50 border-b border-border">
-              <TableHead className="font-semibold text-foreground">Project</TableHead>
+              <TableHead className="font-semibold text-foreground pl-6">Project</TableHead>
               <TableHead className="font-semibold text-foreground">Template</TableHead>
               <TableHead className="font-semibold text-foreground">Created</TableHead>
               <TableHead className="font-semibold text-foreground">User</TableHead>
-              <TableHead className="w-12.5 text-right font-semibold text-foreground">Actions</TableHead>
+              <TableHead className="w-12.5 text-right font-semibold text-foreground pr-6">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -203,7 +203,7 @@ export default function ProjectTable({
                     "group transition-colors hover:bg-muted/50 border-b border-border/50 last:border-0 h-16",
                   )}
                 >
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium pl-6">
                     <div className="flex flex-col gap-1 py-1">
                       <Link
                         href={`/playground/${project.id}`}
@@ -249,7 +249,7 @@ export default function ProjectTable({
                       <span className="text-sm font-medium">{project.user.name ?? "Unknown"}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right pr-6">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -328,7 +328,7 @@ export default function ProjectTable({
       </div>
 
       {/* Mobile Card View */}
-      <div className="lg:hidden space-y-3">
+      <div className="lg:hidden w-full space-y-3">
         <AnimatePresence mode="popLayout">
           {projects.map((project, index) => (
             <motion.div

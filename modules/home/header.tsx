@@ -47,7 +47,7 @@ export function Header() {
               Dashboard
             </Link>
             <Link
-              href="https://github.com"
+              href="https://github.com/Abhiraj35/code-editor"
               target="_blank"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
