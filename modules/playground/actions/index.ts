@@ -6,7 +6,6 @@ import { TemplateFolder } from "../lib/path-to-json";
 
 export const getPlaygroundById = async (id: string) => {
   try {
-    // TODO: Implement playground retrieval
     const playground = await db.playground.findUnique({
       where: { id },
       select: {
